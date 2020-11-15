@@ -1,9 +1,7 @@
 #/bin/sh
-python djangochallenge/manage.py makemigrations
+python manage.py makemigrations
 
-python djangochallenge/manage.py migrate
-
-cd djangochallenge
+python manage.py migrate
 
 python manage.py test
 
