@@ -1,88 +1,105 @@
 # API RESTful de usuários + login
 
-Criar aplicação que exponha uma API RESTful de criação de usuários com login.
+A aplicação consiste em uma API de usuários que possui endpoints para criação, autenticação e visualização de um usuário. Para criação dessa API foi utilizado Django e Django Rest Framework, utilizado Docker e Docker Compose para construir o ambiente local e Heroku como ambiente na nuvem. O domínio da aplicação encontra-se no link https://desafio-django-pitang.herokuapp.com. Abaixo segue os endpoints que foram criados:
+ 
 
-A aplicação deve aceitar e responder apenas em JSON.
+### POST - /api/signup
 
-Nós esperamos que as mensagens de erro tenham o seguinte formato:
-
-```json
-    {"message": "Error message", "errorCode": 123}
-```
-
-## /signup
-
-* Essa rota espera um usuário com os campos abaixo:
-    - firstName [String]
-    - lastName [String]
-    - email [String]
-    - password [String]
-    - phones [List]
-        - number [Number]
-        - area_code [Number]
-        - country_code [String]
-* Segue abaixo um exemplo do formato:
+* Endpoint que cadastra um novo usuário e retorna o token. Segue exemplo do body da requisição:
 
 ```json
     {
-        "firstName": "Hello",
-        "lastName": "World",
-        "email": "hello@world.com"
-        "password": "hunter2",
-        "phones": [
-            {
-                "number": 988887888,
-                "area_code": 81,
-                "country_code": "+55"
-            }
-        ]
+      "first_name": "First Name",
+      "last_name": "Last name",
+      "email": "email123@email.com",
+      "password": "password",
+      "phones": [
+        {
+          "number": 999999999,
+          "area_code": 81,
+          "country_code": "+55"
+        }
+      ]
     }
 ```
-Obs: O id do usuário pode ser um sequencial gerado pelo banco ou um id único.
 
-* Responder o código de status HTTP apropriado
-* Em caso de sucesso você deve retornar:
-    * `token`: token de acesso da API (JWT) com informações do usuário cadastrado;
+### POST - /api/signin
+* Endpoint que retorna o token de autenticação. Segue exemplo do body da requisição:
 
-* Em caso de erro:
-    - E-mail existente [retornar um erro com a mensagem "E-mail already exists"];
-    - Campos inválidos [retornar um erro com a mensagem "Invalid fields"];
-    - Campos não preenchidos [retornar um erro com a mensagem "Missing fields"];
-## /signin
-* Essa rota espera um objeto com os campos abaixo:
-    - email [String]
-    - password [String]
+```json
+    {
+      "email": "email123@email.com",
+      "password": "password"
+    }
+```
 
-* Em caso de sucesso você deve retornar:
-    * `token`: token de acesso da API (JWT) com informaçÕes do usuário logado;
-* Em caso de erro:
-    - E-mail inexistente ou senha errada [retornar um erro com a mensagem "Invalid e-mail or password"];
-    - Campos não preenchidos [retornar um erro com a mensagem "Missing fields"];
+### GET - /api/me 
+* Endpoint que retorna informações do usuário autenticado. É necessário inserir o atributo ``Authorization`` nos headers da requisição, exemplo:
 
-## /me 
-* Essa rota espera o token da api (via header):
-    - Authorization [JWT Token]
- 
-* Em caso de sucesso você deve retornar:
-    - `firstName`: Nome do usuário;
-    - `lastName`: Sobrenome do usuário;
-    - `email`: E-mail do usuário;
-    - `phones`: Lista de telefones do usuário;
-    - `created_at`: Data da criação do usuário;
-    - `last_login`: Data da última vez que o usuário realizou login;
-* Em caso de erro:
-    - Token não enviado [retornar um erro com a mensagem "Unauthorized"];
-    - Token expirado [retornar um erro com a mensagem "Unauthorized - invalid session"];
+```json
+    Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6Im....
+```
 
-## Requisitos
-* Framework Django.
-* Banco de dados em memória, como SQLite.
-* Persistência com Django ORM ou SQLAlchemy.
-* Disponibilizar a API rodando em algum host (Heroku, AWS, Digital Ocean, etc).
-* Servidor deve estar embutido na aplicação (Gunicorn ou uWSGI)
-* Utiliziar no mínimo Python 3
-* Testes unitários
+Na raiz do projeto encontra-se o arquivo postman chamado ``Desafio Django Pitang.postman_collection.json``, que pode ser importado e utilizado pra executar as requisições ao host do Heroku.
 
-## Requisitos desejáveis
-* JWT como token
-* Senha deve ser criptografada
+
+
+
+
+## Executando aplicação em um Ambiente local:
+
+Para utilizar a aplicação em ambiente local é necessário ter o ``Docker`` e ``Docker Composer`` instalados e executar os seguintes passos:
+
+* Crie um arquivo chamado ``.env`` na raiz do projeto e insira as seguintes variáveis:
+
+```txt
+    SECRET_KEY=jkahsdfjkhasldjfgahsd5
+    DEBUG=False
+    HOST=0.0.0.0:8000
+```
+
+* Execute o projeto com o comando:
+
+```sh
+    docker-compose up -d --build
+```
+* Aplicação vai fazer o build, executar os testes e em seguida o ``guinicorn``. Execute o comando a baixo para ver os logs:
+
+```sh
+    docker logs desafio-python-django_api_1 -f
+```
+
+* A aplicação estará em execução quando apresentar os seguintes logs:
+
+```sh
+    Applying users.0007_remove_user_updated_at... OK
+    Applying users.0008_auto_20201115_0251... OK
+    Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
+    ............
+    ----------------------------------------------------------------------
+    Ran 12 tests in 1.136s
+
+    OK
+    Destroying test database for alias 'default'...
+    [2020-11-15 23:31:45 +0000] [9] [INFO] Starting gunicorn 20.0.4
+    [2020-11-15 23:31:45 +0000] [9] [INFO] Listening at: http://0.0.0.0:8000 (9)
+    [2020-11-15 23:31:45 +0000] [9] [INFO] Using worker: sync
+    [2020-11-15 23:31:45 +0000] [12] [INFO] Booting worker with pid: 12
+
+```
+
+* A API poderá ser acessada localmente pelo host http://0.0.0.0:8000
+
+## Executando os testes no ambiente local
+
+### Com o ambiente já em execução, entre no container para executar os testes utilizando os seguintes comandos:
+
+```sh
+    docker exec -it desafio-python-django_api_1 bash
+    cd djangochallenge/
+    python manage.py test
+```
+
+
+
