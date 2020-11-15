@@ -63,6 +63,5 @@ coverage.*
 
 
 djangochallenge/db.sqlite3
-migrations/
 __pycache__/
 staticfiles/
